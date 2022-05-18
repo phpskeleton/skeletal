@@ -1,0 +1,17 @@
+{
+    "name": "skeletal/framework",
+    "type": "library",
+    "license": "MIT",
+    "autoload": {
+        "psr-4": {
+            "Skeletal\\Framework\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "benhdev",
+            "email": "me@benhirst.co.uk"
+        }
+    ],
+    "require": {}
+}
