@@ -3,8 +3,14 @@
     "type": "library",
     "license": "MIT",
     "autoload": {
+        "files": [
+            "src/framework/Support/helpers.php"
+        ],
         "psr-4": {
-            "Skeletal\\Framework\\": "src/"
+            "": "src/",
+            "Skeletal\\": [
+                "src/framework/"
+            ]
         }
     },
     "authors": [
