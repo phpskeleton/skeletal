@@ -3,6 +3,8 @@
 namespace Skeletal\Exceptions;
 
 use Skeletal\Support\Log;
+use Skeletal\Support\Response;
+
 use Throwable;
 
 class Handler
@@ -13,6 +15,7 @@ class Handler
     public static function report(Throwable $e): void
     {
         Log::{static::$level}($e);
+        Response::sendError($e);
     }
 
     public static function reportError($level, $message, $file = '', $line = 0, $context = [])
