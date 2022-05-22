@@ -4,6 +4,7 @@ use Skeletal\Contracts\Http\HandleRequests;
 use Skeletal\Http\Request;
 
 
+use Skeletal\Support\Reflector;
 use Skeletal\Support\Resolver;
 use Skeletal\Support\Response;
 
@@ -38,25 +39,7 @@ class Skeletal implements HandleRequests
             $_GET, $_POST, $_COOKIE, $_FILES, $_SERVER
         );
 
-        $callback = $callback->bindTo($this);
-
-        $reflectionCallback = new ReflectionFunction($callback);
-        $callbackParams = [];
-        foreach ($reflectionCallback->getParameters() as $index => $param) {
-
-            // if (class_exists($abstract = $param->getType())) {
-            //     $dependency = $this->resolve($abstract);
-            // }
-            if (! $abstract = $param->getType()?->getName()) {
-                $abstract = $param->getName();
-            }
-
-            $callbackParams[] = $this->resolve((string) $abstract);
-        }
-
-        Response::send(
-            $reflectionCallback->invokeArgs($callbackParams)
-        );
+        Response::send(Reflector::buildFromClosure($callback)->call());
     }
 
     public function resolve(string $abstract)
