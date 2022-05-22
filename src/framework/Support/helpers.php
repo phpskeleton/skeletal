@@ -11,6 +11,13 @@ if (! function_exists('app')) {
     }
 }
 
+if (! function_exists('collect')) {
+    function collect(array $array = []): Skeletal\Support\Collection
+    {
+        return new Skeletal\Support\Collection($array);
+    }
+}
+
 if (! function_exists('debug')) {
     function debug($log): void
     {
