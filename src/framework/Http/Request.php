@@ -8,11 +8,11 @@ class Request implements Stringable
 {
     public function __construct($globalGET, $globalPOST, $globalCOOKIE, $globalFILES, $globalSERVER)
     {
-        debug($globalGET);
-        debug($globalPOST);
-        debug($globalCOOKIE);
-        debug($globalFILES);
-        debug($globalSERVER);
+        // debug($globalGET);
+        // debug($globalPOST);
+        // debug($globalCOOKIE);
+        // debug($globalFILES);
+        // debug($globalSERVER);
     }
 
     public static function getInfo()
