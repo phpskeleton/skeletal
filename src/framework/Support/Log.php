@@ -13,12 +13,12 @@ class Log
 {
     public static function debug(string|Stringable|Collection|array|null $log): void
     {
-        if (is_array($log)) {
-            $log = json_encode($log);
-        }
-
         if ($log instanceof Collection) {
             $log = $log->getArrayCopy();
+        }
+
+        if (is_array($log)) {
+            $log = json_encode($log);
         }
 
         file_put_contents(static::getLogFile(), ($log ?? 'null').PHP_EOL, FILE_APPEND | LOCK_EX);
@@ -32,6 +32,10 @@ class Log
 
     private static function getLogFile(): string
     {
+        if (!file_exists(getcwd().'/../storage/logs')) {
+            mkdir(getcwd().'/../storage/logs', 0777, true);
+        }
+
         return getcwd().'/../storage/logs/skeletal.log';
     }
 }
