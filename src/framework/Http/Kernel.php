@@ -1,14 +1,13 @@
 <?php
 
-namespace Skeletal;
-
-use Skeletal\Http\Router;
+namespace Skeletal\Http;
 
 class Kernel
 {
     public static function process()
     {
         static::routes();
+
         return Router::handle(request()->method(), request()->path());
     }
 

@@ -1,8 +1,9 @@
 <?php
 
 use Skeletal\Contracts\Http\HandleRequests;
-use Skeletal\Http\Request;
 
+use Skeletal\Http\Kernel;
+use Skeletal\Http\Request;
 
 use Skeletal\Support\Reflector;
 use Skeletal\Support\Resolver;
@@ -18,9 +19,7 @@ class Skeletal implements HandleRequests
 
     public function __construct()
     {
-        static::bootstrap();
-
-        static::$instance = $this;
+        static::bootstrap(static::$instance = $this);
     }
 
     public function getCurrentRequest()
@@ -59,13 +58,15 @@ class Skeletal implements HandleRequests
 
     public function make(string $abstract, array $arguments = [])
     {
+        if (array_key_exists($abstract, $class = $this->definitions())) {
+            $this->$abstract = new Resolver($class[$abstract]);
+        }
+
         if (class_exists($abstract)) {
             return $this->container[$abstract] = new $abstract(...$arguments);
         }
 
-        return array_key_exists($abstract, $class = $this->definitions())
-            ? $this->$abstract = new Resolver($class[$abstract])
-            : null;
+        return null;
     }
 
     protected function definitions()
@@ -81,11 +82,13 @@ class Skeletal implements HandleRequests
         return static::$instance ?: new static;
     }
 
-    protected static function bootstrap(): void
+    protected static function bootstrap($instance): void
     {
-        static::$basePath = $_ENV['APP_BASE_PATH'] ?? dirname(getcwd());
         set_error_handler([Skeletal\Exceptions\Handler::class, 'reportError']);
         set_exception_handler([Skeletal\Exceptions\Handler::class, 'report']);
+
+        static::$basePath = $_ENV['APP_BASE_PATH'] ?? dirname(getcwd());
+        class_alias('App\\Kernel', Kernel::class);
     }
 
     public static function basePath(string $path = '')
