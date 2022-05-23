@@ -49,7 +49,7 @@ class Request implements Stringable
         return $this->storage->get($key);
     }
 
-    public function __set(string $key, ?mixed $value)
+    public function __set(string $key, mixed $value)
     {
         return $this->storage->set($key, $value);
     }
