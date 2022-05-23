@@ -243,6 +243,8 @@ class Collection extends ArrayObject implements ArrayAccess, Stringable
             ? (is_array($newValue) ? array_replace_recursive($result, $newValue) : $newValue)
             : (count($nest) ? array_replace($result, $newValue) : $newValue);
 
+        // perhaps here we could decide whether to
+        // exchange with toArray() or toCollections()
         $this->exchangeArray($this->toArray());
     }
 
