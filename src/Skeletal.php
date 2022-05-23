@@ -59,7 +59,7 @@ class Skeletal implements HandleRequests
     public function make(string $abstract, array $arguments = [])
     {
         if (array_key_exists($abstract, $class = $this->definitions())) {
-            $this->$abstract = new Resolver($class[$abstract]);
+            return $this->$abstract = new Resolver($class[$abstract]);
         }
 
         if (class_exists($abstract)) {
