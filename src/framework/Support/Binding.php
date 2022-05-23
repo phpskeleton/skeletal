@@ -11,7 +11,7 @@ class Binding
         $this->app = app();
     }
 
-    public function create()
+    public static function create()
     {
         return new static;
     }
