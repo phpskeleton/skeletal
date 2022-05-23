@@ -88,7 +88,6 @@ class Skeletal implements HandleRequests
         set_exception_handler([Skeletal\Exceptions\Handler::class, 'report']);
 
         static::$basePath = $_ENV['APP_BASE_PATH'] ?? dirname(getcwd());
-        class_alias('App\\Kernel', Kernel::class);
     }
 
     public static function basePath(string $path = '')
