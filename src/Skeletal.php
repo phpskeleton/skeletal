@@ -47,6 +47,13 @@ class Skeletal implements HandleRequests
         // if (empty($this->container[$abstract])) {
         //     throw new \Exception("\"{$abstract}\" not defined on the Skeletal instance");
         // }
+        if (is_a($this, $abstract)) {
+            return $this;
+        }
+
+        if ($needle = array_search($abstract, $this->definitions())) {
+            $abstract = $needle;
+        }
 
         return $this->container[$abstract] ?? $this->make($abstract);
              // : throw new ErrorException("\"{$abstract}\" couldn't be resolved within Skeletal instance");
@@ -63,7 +70,7 @@ class Skeletal implements HandleRequests
             : null; //throw new ErrorException("\"{$abstract}\" not defined on the Skeletal instance");
     }
 
-    public function definitions()
+    protected function definitions()
     {
         return [
             'request' => \Skeletal\Http\Request::class
