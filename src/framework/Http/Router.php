@@ -12,15 +12,15 @@ class Router
 
     public static function get(string $route, array|string $controller)
     {
-        static::requestMethod(__METHOD__, $route, $controller);
+        static::requestMethod(__FUNCTION__, $route, $controller);
     }
 
     public static function post(string $route, array|string $controller)
     {
-        static::requestMethod(__METHOD__, $route, $controller);
+        static::requestMethod(__FUNCTION__, $route, $controller);
     }
 
-    private static function requestMethod(string $method, string $route, array|string $controller)
+    private static function requestMethod(string $httpMethod, string $route, array|string $controller)
     {
         if (is_string($controller)) {
             $controller = explode('@', $controller);
@@ -34,7 +34,7 @@ class Router
             throw new \ErrorException("$abstract::$method not found");
         }
 
-        $routeKey = $method.str_replace('/', '.', ltrim($route, '/'));
+        $routeKey = $httpMethod.'.'.str_replace('/', '.', ltrim($route, '/'));
 
         static::$routes = collect()->set($routeKey, [
             Reflector::buildFromClass($abstract),
