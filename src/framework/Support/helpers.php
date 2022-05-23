@@ -18,6 +18,13 @@ if (! function_exists('collect')) {
     }
 }
 
+if (! function_exists('is_collection')) {
+    function is_collection(mixed $item): bool
+    {
+        return $item instanceof Skeletal\Support\Collection;
+    }
+}
+
 if (! function_exists('debug')) {
     function debug($log): void
     {
