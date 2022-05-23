@@ -9,8 +9,7 @@ class Kernel
     public static function process()
     {
         static::routes();
-        
-        return Router::handle('GET', '/user');
+        return Router::handle(request()->method(), request()->path());
     }
 
     protected static function routes()

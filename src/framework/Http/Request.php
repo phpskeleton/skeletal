@@ -14,17 +14,22 @@ class Request implements Stringable
     public function __construct(...$globals)
     {
         $this->uuid = uniqid();
-        // debug($globalGET);
-        // debug($globalPOST);
-        // debug($globalCOOKIE);
-        // debug($globalFILES);
-        // debug($globalSERVER);
         $this->storage = collect()->merge(...$globals);
     }
 
     public function getInfo()
     {
         return $this->uuid;
+    }
+
+    public function method()
+    {
+        return $this->get('REQUEST_METHOD');
+    }
+
+    public function path()
+    {
+        return parse_url($this->get('REQUEST_URI'), PHP_URL_PATH);;
     }
 
     public function test()
