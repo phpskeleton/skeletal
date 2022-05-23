@@ -46,9 +46,6 @@ class Skeletal implements HandleRequests
 
     public function resolve(string $abstract)
     {
-        // if (empty($this->container[$abstract])) {
-        //     throw new \Exception("\"{$abstract}\" not defined on the Skeletal instance");
-        // }
         if (is_a($this, $abstract)) {
             return $this;
         }
@@ -58,7 +55,6 @@ class Skeletal implements HandleRequests
         }
 
         return $this->container[$abstract] ?? $this->make($abstract);
-             // : throw new ErrorException("\"{$abstract}\" couldn't be resolved within Skeletal instance");
     }
 
     public function make(string $abstract, array $arguments = [])
@@ -69,7 +65,7 @@ class Skeletal implements HandleRequests
 
         return array_key_exists($abstract, $class = $this->definitions())
             ? $this->$abstract = new Resolver($class[$abstract])
-            : null; //throw new ErrorException("\"{$abstract}\" not defined on the Skeletal instance");
+            : null;
     }
 
     protected function definitions()
