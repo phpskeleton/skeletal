@@ -36,6 +36,13 @@ class Router
     {
         $routeKey = strtolower($method).'.'.str_replace('/', '.', ltrim($path, '/'));
         [$controllerInstance, $methodReflector] = static::$routes->get($routeKey);
-        return $methodReflector->call($controllerInstance->create());
+
+        try {
+            return $methodReflector->call($controllerInstance->create());
+        } catch (\Throwable $e) {
+            return response()->json([
+                'error' => 'Route ' . $path . ' not found'
+            ], 404);
+        }
     }
 }

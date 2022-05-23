@@ -8,9 +8,11 @@ use Throwable;
 class Response implements Stringable
 {
 
-    public static function json(array|Collection $body): string
+    public static function json(array|Collection $body, int $code = 0): string
     {
         header('Content-Type: ' . 'application/json');
+        http_response_code($code);
+
         return json_encode($body instanceof Collection ? $body->getArrayCopy() : $body);
     }
 
