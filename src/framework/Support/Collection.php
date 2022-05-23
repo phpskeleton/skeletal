@@ -6,7 +6,6 @@ use ArrayAccess;
 use Stringable;
 
 use ArrayObject;
-use Closure;
 
 /**
  * Skeletal\Support\Collection
@@ -15,10 +14,14 @@ use Closure;
  */
 class Collection extends ArrayObject implements ArrayAccess, Stringable
 {
-
     public function __construct(array|object $array = [])
     {
         parent::__construct($array, static::ARRAY_AS_PROPS);
+    }
+
+    public static function create(array|object $array = [])
+    {
+        return collect($array);
     }
 
     /**
@@ -33,6 +36,11 @@ class Collection extends ArrayObject implements ArrayAccess, Stringable
         return json_encode($this->getArrayCopy());
     }
 
+    public function all()
+    {
+        return $this->toArray();
+    }
+
     /**
      *
      * Creates a new Collection instance containing the same array
@@ -43,24 +51,157 @@ class Collection extends ArrayObject implements ArrayAccess, Stringable
      */
     public function copy(): static
     {
-        return new static($this->getArrayCopy());
+        return collect($this->getArrayCopy());
     }
 
+    /**
+     * Loop through each item in the collection
+     */
+    public function each(callable $callback): void
+    {
+        foreach ($this->getIterator() as $key => $value) {
+            $callback($key, $value);
+        }
+    }
+
+    /**
+     * Loop through each item including nested arrays & objects in the collection
+     */
+    public function eachNested(callable $callback): void
+    {
+        foreach ($this->getIterator() as $key => $value) {
+            if (is_array($value)) {
+                $value = collect($value);
+            }
+
+            $callback($key, $value);
+
+            if ($value instanceof static) {
+                $value->eachNested($callback);
+            }
+        }
+    }
+
+    public function flatten($depth = INF)
+    {
+        $result = [];
+
+        foreach ($this->toArray() as $item) {
+            $item = $item instanceof static ? $item->all() : $item;
+
+            if (! is_array($item)) {
+                $result[] = $item;
+            } else {
+                $values = $depth === 1
+                    ? array_values($item)
+                    : collect($item)->flatten($depth - 1);
+
+                foreach ($values as $value) {
+                    $result[] = $value;
+                }
+            }
+        }
+
+        return $result;
+    }
+
+    /**
+     * Creates a new Collection instance containing the keys of the array
+     */
     public function keys(): static
     {
         return $this->array_keys();
     }
 
+    public function map(callable $callback)
+    {
+        return array_map($callback, $this->getArrayCopy());
+    }
+
+    /**
+     * Merges the current collection and any number of arrays into a new Collection instance
+     */
     public function merge(array ...$arrays): static
     {
         return $this->array_merge(...$arrays);
     }
 
+    /**
+     * Sort the collection by keys
+     */
+    public function sortKeys(?callable $callback = null): static
+    {
+        if (is_callable($callback)) {
+            $this->uksort($callback);
+            return $this;
+        }
+
+        $this->ksort();
+        return $this;
+    }
+
+    /**
+     * Sort the collection by values
+     */
+    public function sortValues(?callable $callback = null): static
+    {
+        if (is_callable($callback)) {
+            $this->uasort($callback);
+            return $this;
+        }
+
+        $this->asort();
+        return $this;
+    }
+
+    /**
+     * Returns the current collection as an array
+     */
+    public function toArray(): array
+    {
+        $arr = $this->map(function ($item) {
+            if (is_collection($item)) {
+                return $item->toArray();
+            }
+
+            if (is_array($item)) {
+                return collect($item)->toArray();
+            }
+
+            return $item;
+        });
+
+        return $arr;
+    }
+
+    /**
+     * Returns the current collection with each nested array as another collection
+     */
+    public function toCollections(): static
+    {
+        $arr = $this->map(function ($item) {
+            if (is_array($item)) {
+                $newItem = collect($item)->toCollections();
+                return $newItem;
+            }
+
+            return $item;
+        });
+
+        return collect($arr);
+    }
+
+    /**
+     * Creates a new Collection instance containing the array values of the original
+     */
     public function values(): static
     {
         return $this->array_values();
     }
 
+    /**
+     * Gets an item from the collection by its key
+     */
     public function get(string|int $key): mixed
     {
         $nest = explode('.', $key);
@@ -80,6 +221,9 @@ class Collection extends ArrayObject implements ArrayAccess, Stringable
         return is_array($value) ? collect($value) : $value;
     }
 
+    /**
+     * Sets an item in the collection by its key
+     */
     public function set(string|int $key, mixed $value): void
     {
         $nest = explode('.', $key);
@@ -98,53 +242,44 @@ class Collection extends ArrayObject implements ArrayAccess, Stringable
         $this[$resultKey] = !is_array($value)
             ? (is_array($newValue) ? array_replace_recursive($result, $newValue) : $newValue)
             : (count($nest) ? array_replace($result, $newValue) : $newValue);
+
+        $this->exchangeArray($this->toArray());
     }
 
-    public function unset(string|int $key): void
+    /**
+     * Unsets an item in the collection by its key
+     */
+    public function unset(string|int $key)
     {
-        if (!$this->get($key)) {
-            // item doesnt exist, no need to do anything
-            return;
-        }
-
         $nest = explode('.', $key);
-        if ($nest[0] === $key) {
+        $removingKey = array_pop($nest);
+
+        if ($key === $removingKey) {
             unset($this[$key]);
             return;
         }
 
-        $result = $value = $this->get($resultKey = array_shift($nest));
-        if ($result instanceof static) {
-            $result = $result->getArrayCopy();
+        if ($entry = $this->get($parentKey = implode('.', $nest))) {
+            unset($entry[$removingKey]);
+            $this->set($parentKey, $entry);
         }
-
-        $removingKey = array_pop($nest);
-        $value = $this->reducer($nest, $value, function (mixed $carry, mixed $key) {
-            return $carry instanceof static || is_array($carry) ? $carry[$key] ?? null : null;
-        });
-
-        unset($value[$removingKey]);
-
-        $value = $this->reducer(array_reverse($nest), $value, function (mixed $carry, mixed $key) {
-            return [$key => $carry];
-        });
-
-        $this[$resultKey] = is_array($value) ? array_replace($result, $value) : $value;
     }
 
+    /**
+     * Internal function that calls array_reduce
+     */
     protected function reducer(array $nest, mixed $value, callable $callback)
     {
         return array_reduce($nest, $callback, $value);
     }
 
+    /**
+     * Calls global array functions using the current collections array as the first argument
+     */
     public function __call(string $method, array $arguments)
     {
         if (is_callable($method) && str_starts_with($method, 'array_')) {
-            $this->exchangeArray(
-                $method($this->getArrayCopy(), ...$arguments)
-            );
-
-            return $this;
+            return collect($method($this->getArrayCopy(), ...$arguments));
         }
 
         throw new \BadMethodCallException($this::class . '->' . $method);
