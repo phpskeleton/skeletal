@@ -4,27 +4,22 @@ require_once __DIR__.'/../vendor/autoload.php';
 
 use Skeletal\Support\Log;
 use Skeletal\Support\Response;
+use Skeletal\Support\Collection;
 
 $app = Skeletal::getInstance();
 
 $app->handleRequest(function (Response $response) {
 
-    $collection = collect();
+    $collection = collect([
+        'address' => [
+            'street_address' => '123 Manchester Road',
+            'city' => 'Manchester',
+            'postcode' => 'M1 1FT'
+        ]
+    ]);
 
     debug('----------');
 
-    $collection->set('address.street_address', '123 Manchester Road');
-    $collection->set('address.city', 'Manchester');
-    $collection->set('address.postcode.a', 'a');
-
-    $collection->set('address.postcode.b', 'b');
-
-    $collection->set('address.postcode.a', 'c');
-
-    $collection->set('test', 5);
-    $collection->unset('test');
-
-    $collection->merge(['test 1'], ['test 2'], ['test 3'])->values();
-
-    return Response::json($collection);
+    $address = $collection->get('address')->sortKeys();
+    return Response::json($address->toArray());
 });
