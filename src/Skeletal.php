@@ -87,7 +87,7 @@ class Skeletal implements HandleRequests
 
     protected static function bootstrap(): void
     {
-        static::$basePath = $_ENV['APP_BASE_PATH'] ?? dirname(__DIR__);
+        static::$basePath = $_ENV['APP_BASE_PATH'] ?? dirname(getcwd());
         set_error_handler([Skeletal\Exceptions\Handler::class, 'reportError']);
         set_exception_handler([Skeletal\Exceptions\Handler::class, 'report']);
     }
