@@ -95,7 +95,7 @@ class Reflector
 
     public static function createBoundClosure(Closure $closure)
     {
-        $closure->bindTo(Binding::create());
+        $closure = $closure->bindTo(Binding::create());
         return static::buildFromClosure($closure);
     }
 }
