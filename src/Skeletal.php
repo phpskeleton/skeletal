@@ -6,11 +6,13 @@ use Skeletal\Http\Request;
 
 use Skeletal\Support\Reflector;
 use Skeletal\Support\Resolver;
-use Skeletal\Support\Response;
+use Skeletal\Http\Response;
 
 class Skeletal implements HandleRequests
 {
     protected static $instance;
+
+    protected static $basePath;
 
     protected $container = [];
 
@@ -32,7 +34,7 @@ class Skeletal implements HandleRequests
          * @uses Skeletal\Http\Request
          *
          * @uses Skeletal\Support\Resolver
-         * @uses Skeletal\Support\Response
+         * @uses Skeletal\Http\Response
          */
 
         $this->request = $this->resolve('request')->createFromGlobals(
@@ -73,7 +75,8 @@ class Skeletal implements HandleRequests
     protected function definitions()
     {
         return [
-            'request' => \Skeletal\Http\Request::class
+            'request' => \Skeletal\Http\Request::class,
+            'response' => \Skeletal\Http\Response::class
         ];
     }
 
@@ -84,8 +87,14 @@ class Skeletal implements HandleRequests
 
     protected static function bootstrap(): void
     {
+        static::$basePath = $_ENV['APP_BASE_PATH'] ?? dirname(__DIR__);
         set_error_handler([Skeletal\Exceptions\Handler::class, 'reportError']);
         set_exception_handler([Skeletal\Exceptions\Handler::class, 'report']);
+    }
+
+    public static function basePath(string $path = '')
+    {
+        return static::$basePath.(!empty($path) ? DIRECTORY_SEPARATOR.$path : '');
     }
 
     public function __get($name): mixed

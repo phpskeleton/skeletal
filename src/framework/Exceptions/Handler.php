@@ -3,7 +3,7 @@
 namespace Skeletal\Exceptions;
 
 use Skeletal\Support\Log;
-use Skeletal\Support\Response;
+use Skeletal\Http\Response;
 
 use Throwable;
 

@@ -5,4 +5,7 @@ composer.lock
 oldarraygen.php
 resolved-comments.php
 .phpdoc
-/storage/logs
+app/
+public
+routes/
+storage/

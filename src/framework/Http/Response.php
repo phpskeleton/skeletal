@@ -1,6 +1,6 @@
 <?php
 
-namespace Skeletal\Support;
+namespace Skeletal\Http;
 
 use Stringable;
 use Throwable;
@@ -28,6 +28,11 @@ class Response implements Stringable
             'line' => $e->getLine(),
             'trace' => $e->getTraceAsString()
         ]);
+    }
+
+    public function __call(string $method, array $arguments)
+    {
+        return static::$method(...$arguments);
     }
 
     public function __toString(): string

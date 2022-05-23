@@ -82,6 +82,11 @@ class Collection extends ArrayObject implements ArrayAccess, Stringable
         }
     }
 
+    public function filter(?callable $callback = null)
+    {
+        return $this->array_filter($callback, ARRAY_FILTER_USE_BOTH);
+    }
+
     public function flatten($depth = INF)
     {
         $result = [];
@@ -124,6 +129,48 @@ class Collection extends ArrayObject implements ArrayAccess, Stringable
     public function merge(array ...$arrays): static
     {
         return $this->array_merge(...$arrays);
+    }
+
+    /**
+     * Return a collection containing only the keys provided
+     */
+    public function only(...$options)
+    {
+        if (isset($options[0]) && is_array($options[0])) {
+            $options = $options[0];
+        }
+
+        return $this->array_filter(function ($key) use($options) {
+            return in_array($key, $options);
+        }, ARRAY_FILTER_USE_KEY);
+    }
+
+    /**
+     * Pluck keys from items withn the collection and return them as a new collection
+     */
+    public function pluck(...$options)
+    {
+        if (isset($options[0]) && is_array($options[0])) {
+            $options = $options[0];
+        }
+
+        $entries = $this->map(function ($item) use ($options) {
+            if (is_array($item)) {
+                $item = collect($item);
+            }
+
+            if (is_collection($item)) {
+                return $item->only($options);
+            }
+        });
+
+        $plucked = collect($entries)->filter()->values();
+
+        if (count($options) <= 1) {
+            $plucked = $plucked->flatten();
+        }
+
+        return $plucked;
     }
 
     /**
@@ -224,7 +271,7 @@ class Collection extends ArrayObject implements ArrayAccess, Stringable
     /**
      * Sets an item in the collection by its key
      */
-    public function set(string|int $key, mixed $value): void
+    public function set(string|int $key, mixed $value): static
     {
         $nest = explode('.', $key);
         $result = $this->get($resultKey = array_shift($nest));
@@ -246,6 +293,7 @@ class Collection extends ArrayObject implements ArrayAccess, Stringable
         // perhaps here we could decide whether to
         // exchange with toArray() or toCollections()
         $this->exchangeArray($this->toArray());
+        return $this;
     }
 
     /**

@@ -27,7 +27,6 @@ class Log
     public static function echo(string $log): void
     {
         echo $log.PHP_EOL;
-        debug('echo done');
     }
 
     private static function getLogFile(): string

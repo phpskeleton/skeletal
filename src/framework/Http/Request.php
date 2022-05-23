@@ -6,8 +6,12 @@ use Stringable;
 
 class Request implements Stringable
 {
+
+    protected $uuid;
+
     public function __construct($globalGET, $globalPOST, $globalCOOKIE, $globalFILES, $globalSERVER)
     {
+        $this->uuid = uniqid();
         // debug($globalGET);
         // debug($globalPOST);
         // debug($globalCOOKIE);
@@ -15,9 +19,9 @@ class Request implements Stringable
         // debug($globalSERVER);
     }
 
-    public static function getInfo()
+    public function getInfo()
     {
-        return 'hello';
+        return $this->uuid;
     }
 
     public function test()

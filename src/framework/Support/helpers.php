@@ -38,3 +38,10 @@ if (! function_exists('request')) {
         return app('request');
     }
 }
+
+if (! function_exists('response')) {
+    function response(): Skeletal\Http\Response
+    {
+        return app('response')->build();
+    }
+}
