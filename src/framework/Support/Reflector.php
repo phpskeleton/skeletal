@@ -79,9 +79,6 @@ class Reflector
 
     public static function buildFromClosure(Closure $closure): static
     {
-        $app = app();
-        $closure->bindTo($app);
-
         $reflection = new ReflectionFunction($closure);
         $parameters = [];
 
@@ -90,9 +87,15 @@ class Reflector
                 $abstract = $param->getName();
             }
 
-            $parameters[] = $app->resolve((string) $abstract);
+            $parameters[] = app()->resolve((string) $abstract);
         }
 
         return new self($reflection, $parameters);
+    }
+
+    public static function createBoundClosure(Closure $closure)
+    {
+        $closure->bindTo(Binding::create());
+        return static::buildFromClosure($closure);
     }
 }

@@ -41,7 +41,7 @@ class Skeletal implements HandleRequests
             $_GET, $_POST, $_COOKIE, $_FILES, $_SERVER
         );
 
-        Response::send(Reflector::buildFromClosure($callback)->call());
+        Response::send(Reflector::createBoundClosure($callback)->call());
     }
 
     public function resolve(string $abstract)
