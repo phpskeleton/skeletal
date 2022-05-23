@@ -22,6 +22,11 @@ class Router
 
     private static function requestMethod(string $httpMethod, string $route, array|string $controller)
     {
+        /**
+         * @todo think about moving this bootstrap call
+         */
+        static::bootstrap();
+
         if (is_string($controller)) {
             $controller = explode('@', $controller);
         }
@@ -58,6 +63,8 @@ class Router
 
     private static function bootstrap()
     {
-        static::$routes = collect();
+        if (empty(static::$routes)) {
+            static::$routes = collect();
+        }
     }
 }
