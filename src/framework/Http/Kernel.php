@@ -35,6 +35,7 @@ class Kernel
     private static function bootstrap()
     {
         static::$instance = new static;
+        Router::bootstrap();
     }
 
     protected static function routes()

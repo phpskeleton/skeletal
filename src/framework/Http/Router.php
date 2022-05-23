@@ -36,7 +36,7 @@ class Router
 
         $routeKey = $httpMethod.'.'.str_replace('/', '.', ltrim($route, '/'));
 
-        static::$routes = collect()->set($routeKey, [
+        static::$routes->set($routeKey, [
             Reflector::buildFromClass($abstract),
             Reflector::buildFromMethod($abstract, $method)
         ]);
@@ -54,5 +54,10 @@ class Router
                 'error' => 'Route ' . request()->method() . ' ' . $path . ' not found'
             ], 404);
         }
+    }
+
+    private static function bootstrap()
+    {
+        static::$routes = collect();
     }
 }
