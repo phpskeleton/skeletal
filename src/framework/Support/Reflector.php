@@ -22,7 +22,11 @@ class Reflector
     public function call(?object $instance = null, array $arguments = [])
     {
         if ($this->reflection instanceof ReflectionFunction) {
-            return $this->reflection->invokeArgs(array_merge($this->parameters, $arguments));
+            $args = array_merge($this->parameters, $arguments);
+            debug($this->parameters);
+            debug($arguments);
+            debug($args);
+            return $this->reflection->invokeArgs($args);
         }
 
         if ($this->reflection instanceof ReflectionMethod) {
@@ -43,8 +47,6 @@ class Reflector
 
     public static function buildFromClass(string $class): static
     {
-        $app = app();
-
         $reflection = new ReflectionClass($class);
         $parameters = [];
 
@@ -54,7 +56,9 @@ class Reflector
                     $abstract = $param->getName();
                 }
 
-                $parameters[] = $app->resolve((string) $abstract);
+                if ($resolved = app()->resolve((string) $abstract)) {
+                    $parameters[] = $resolved;
+                }
             }
         }
 
@@ -71,7 +75,9 @@ class Reflector
                 $abstract = $param->getName();
             }
 
-            $parameters[] = app()->resolve((string) $abstract);
+            if ($resolved = app()->resolve((string) $abstract)) {
+                $parameters[] = $resolved;
+            }
         }
 
         return new self($reflection, $parameters);
@@ -87,7 +93,9 @@ class Reflector
                 $abstract = $param->getName();
             }
 
-            $parameters[] = app()->resolve((string) $abstract);
+            if ($resolved = app()->resolve((string) $abstract)) {
+                $parameters[] = $resolved;
+            }
         }
 
         return new self($reflection, $parameters);
