@@ -40,7 +40,7 @@ class Skeletal implements HandleRequests
             $_GET, $_POST, $_COOKIE, $_FILES, $_SERVER
         );
 
-        Response::send(Reflector::createBoundClosure($callback)->call());
+        Response::send(bind($callback)->call());
     }
 
     /**
@@ -66,7 +66,7 @@ class Skeletal implements HandleRequests
     public function make(string $abstract, array $arguments = [])
     {
         if (array_key_exists($abstract, $class = $this->definitions())) {
-            return $this->$abstract = new Resolver($class[$abstract]);
+            return $this->contaner[$abstract] = $class[$abstract];
         }
 
         if (class_exists($abstract)) {
