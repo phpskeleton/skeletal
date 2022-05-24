@@ -22,11 +22,7 @@ class Reflector
     public function call(?object $instance = null, array $arguments = [])
     {
         if ($this->reflection instanceof ReflectionFunction) {
-            $args = array_merge($this->parameters, $arguments);
-            debug($this->parameters);
-            debug($arguments);
-            debug($args);
-            return $this->reflection->invokeArgs($args);
+            return $this->reflection->invokeArgs(array_merge($this->parameters, $arguments));
         }
 
         if ($this->reflection instanceof ReflectionMethod) {
