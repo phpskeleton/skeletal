@@ -31,12 +31,12 @@ class Request implements Stringable
 
     public function method()
     {
-        return $this->storage->get('REQUEST_METHOD');
+        return $this->globals->get('REQUEST_METHOD');
     }
 
     public function path()
     {
-        return parse_url($this->storage->get('REQUEST_URI'), PHP_URL_PATH);;
+        return parse_url($this->globals->get('REQUEST_URI'), PHP_URL_PATH);;
     }
 
     public function test()
