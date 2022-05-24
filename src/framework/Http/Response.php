@@ -20,10 +20,9 @@ class Response implements Stringable
     {
         if ($body instanceof Throwable) {
             static::sendError($body);
-            return;
+        } else {
+            echo $body;
         }
-
-        echo $body;
     }
 
     public static function sendError(Throwable $e)
