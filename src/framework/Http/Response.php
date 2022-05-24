@@ -16,8 +16,13 @@ class Response implements Stringable
         return json_encode($body instanceof Collection ? $body->getArrayCopy() : $body);
     }
 
-    public static function send(string|Stringable $body): void
+    public static function send(string|Stringable|Throwable $body): void
     {
+        if ($body instanceof Throwable) {
+            static::sendError($body);
+            return;
+        }
+
         echo $body;
     }
 
