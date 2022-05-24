@@ -18,7 +18,7 @@ class Request implements Stringable
         $this->uuid = uniqid();
 
         $inputFile = file_get_contents('php://input');
-        $body = json_decode($inputFile, true);
+        $body = json_decode($inputFile, true) ?? [];
 
         $this->content = collect($body);
         $this->globals = collect()->merge(...$globals);
@@ -31,12 +31,12 @@ class Request implements Stringable
 
     public function method()
     {
-        return $this->get('REQUEST_METHOD');
+        return $this->storage->get('REQUEST_METHOD');
     }
 
     public function path()
     {
-        return parse_url($this->get('REQUEST_URI'), PHP_URL_PATH);;
+        return parse_url($this->storage->get('REQUEST_URI'), PHP_URL_PATH);;
     }
 
     public function test()
