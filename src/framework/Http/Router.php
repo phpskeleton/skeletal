@@ -56,7 +56,8 @@ class Router
             return $methodReflector->call($controllerInstance->create());
         } catch (\Throwable $e) {
             return response()->json([
-                'error' => 'Route ' . request()->method() . ' ' . $path . ' not found'
+                // 'error' => 'Route ' . request()->method() . ' ' . $path . ' not found'
+                'error' => $e->getMessage()
             ], 404);
         }
     }

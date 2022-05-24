@@ -20,7 +20,7 @@ if (! function_exists('app')) {
 }
 
 if (! function_exists('bind')) {
-    function bind(Closure $closure): Closure
+    function bind(Closure $closure): Reflector
     {
         return Reflector::createBoundClosure($closure);
     }
