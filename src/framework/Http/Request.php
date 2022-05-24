@@ -9,12 +9,19 @@ class Request implements Stringable
 
     protected $uuid;
 
-    private $storage = [];
+    private $content = [];
+
+    private $globals = [];
 
     public function __construct(...$globals)
     {
         $this->uuid = uniqid();
-        $this->storage = collect()->merge(...$globals);
+
+        $inputFile = file_get_contents('php://input');
+        $body = json_decode($inputFile, true);
+
+        $this->content = collect($body);
+        $this->globals = collect()->merge(...$globals);
     }
 
     public function getInfo()
@@ -46,17 +53,17 @@ class Request implements Stringable
 
     public function __call(string $method, array $arguments)
     {
-        return $this->storage->$method(...$arguments);
+        return $this->content->$method(...$arguments);
     }
 
     public function __get(string $key)
     {
-        return $this->storage->get($key);
+        return $this->content->get($key);
     }
 
     public function __set(string $key, mixed $value)
     {
-        return $this->storage->set($key, $value);
+        return $this->content->set($key, $value);
     }
 
     public function __toString(): string
