@@ -43,6 +43,9 @@ class Skeletal implements HandleRequests
         Response::send(Reflector::createBoundClosure($callback)->call());
     }
 
+    /**
+     * @todo refactor resolve() to take a $name instead of $abstract (class name)
+     */
     public function resolve(string $abstract)
     {
         if (is_a($this, $abstract)) {
@@ -56,6 +59,10 @@ class Skeletal implements HandleRequests
         return $this->container[$abstract] ?? $this->make($abstract);
     }
 
+    /**
+     * @todo refactor make() to take an alias name for the $abstract
+     * - set $this->container[$name] instead of $abstract
+     */
     public function make(string $abstract, array $arguments = [])
     {
         if (array_key_exists($abstract, $class = $this->definitions())) {
