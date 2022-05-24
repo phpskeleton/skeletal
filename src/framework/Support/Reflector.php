@@ -19,14 +19,14 @@ class Reflector
 
     }
 
-    public function call(?object $instance = null)
+    public function call(?object $instance = null, array $arguments = [])
     {
         if ($this->reflection instanceof ReflectionFunction) {
-            return $this->reflection->invokeArgs($this->parameters);
+            return $this->reflection->invokeArgs(array_merge($this->parameters, $arguments));
         }
 
         if ($this->reflection instanceof ReflectionMethod) {
-            return $this->reflection->invokeArgs($instance, $this->parameters);
+            return $this->reflection->invokeArgs($instance, array_merge($this->parameters, $arguments));
         }
 
         throw new ErrorException('Unable to call ' . $this->reflection->getName() . ' as a function');
@@ -97,5 +97,12 @@ class Reflector
     {
         $closure = $closure->bindTo(Binding::create());
         return static::buildFromClosure($closure);
+    }
+
+    public function __invoke(...$arguments)
+    {
+        if ($this->reflection instanceof ReflectionFunctionAbstract) {
+            return $this->call(null, $arguments);
+        }
     }
 }

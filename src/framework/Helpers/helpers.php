@@ -1,5 +1,13 @@
 <?php
 
+use Skeletal\Http\Request;
+use Skeletal\Http\Response;
+
+use Skeletal\Support\Binding;
+use Skeletal\Support\Collection;
+use Skeletal\Support\Log;
+use Skeletal\Support\Reflector;
+
 if (! function_exists('app')) {
     function app($abstract = null)
     {
@@ -11,36 +19,43 @@ if (! function_exists('app')) {
     }
 }
 
-if (! function_exists('collect')) {
-    function collect(array $array = []): Skeletal\Support\Collection
+if (! function_exists('bind')) {
+    function bind(Closure $closure): Closure
     {
-        return new Skeletal\Support\Collection($array);
+        return Reflector::createBoundClosure($closure);
+    }
+}
+
+if (! function_exists('collect')) {
+    function collect(array $array = []): Collection
+    {
+        return new Collection($array);
     }
 }
 
 if (! function_exists('is_collection')) {
     function is_collection(mixed $item): bool
     {
-        return $item instanceof Skeletal\Support\Collection;
+        return $item instanceof Collection;
     }
 }
 
 if (! function_exists('debug')) {
     function debug($log): void
     {
-        Skeletal\Support\Log::debug($log);
+        Log::debug($log);
     }
 }
 
 if (! function_exists('request')) {
-    function request(): Skeletal\Http\Request
+    function request(): Request
     {
         return app('request');
     }
 }
 
 if (! function_exists('response')) {
-    function response(): Skeletal\Http\Response
+    function response(): Response
     {
         return app('response')->build();
     }
