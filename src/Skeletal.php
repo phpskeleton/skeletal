@@ -37,7 +37,7 @@ class Skeletal implements HandleRequests
          */
 
         $this->request = $this->resolve('request')->createFromGlobals(
-            $_GET, $_POST, $_COOKIE, $_FILES, $_SERVER
+            $_REQUEST, $_GET, $_POST, $_COOKIE, $_FILES, $_SERVER
         );
 
         Response::send(bind($callback)->call());
