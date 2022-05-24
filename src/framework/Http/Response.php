@@ -2,6 +2,8 @@
 
 namespace Skeletal\Http;
 
+use Skeletal\Support\Collection;
+
 use Stringable;
 use Throwable;
 
