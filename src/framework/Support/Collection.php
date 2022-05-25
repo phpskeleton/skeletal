@@ -67,7 +67,7 @@ class Collection extends ArrayObject implements ArrayAccess, Stringable
         $items = $this->pluck($key)->filter()->flatten();
         $sum = $items->array_sum();
 
-        if ($flags === static::ARRAY_SUM_AVG) {
+        if ($flags & static::ARRAY_SUM_AVG) {
             return $sum/$items->count();
         }
 
