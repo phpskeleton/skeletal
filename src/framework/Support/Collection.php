@@ -14,6 +14,9 @@ use ArrayObject;
  */
 class Collection extends ArrayObject implements ArrayAccess, Stringable
 {
+
+    protected const ARRAY_SUM_AVG = 2;
+
     public function __construct(array|object $array = [])
     {
         parent::__construct($array, static::ARRAY_AS_PROPS);
@@ -56,8 +59,19 @@ class Collection extends ArrayObject implements ArrayAccess, Stringable
 
     public function avg(string $key)
     {
+        return $this->sum($key, static::ARRAY_SUM_AVG);
+    }
+
+    public function sum(string $key, int $flags = 0)
+    {
         $items = $this->pluck($key)->filter()->flatten();
-        return $items->array_sum()/$items->count();
+        $sum = $items->array_sum();
+
+        if ($flags === static::ARRAY_SUM_AVG) {
+            return $sum/$items->count();
+        }
+
+        return $sum;
     }
 
     /**
