@@ -57,7 +57,7 @@ class Collection extends ArrayObject implements ArrayAccess, Stringable
     public function avg(string $key)
     {
         $items = $this->pluck($key)->filter()->flatten();
-        return array_sum($items)/$items->count();
+        return $items->array_sum()/$items->count();
     }
 
     /**
@@ -113,7 +113,7 @@ class Collection extends ArrayObject implements ArrayAccess, Stringable
             }
         }
 
-        return $result;
+        return collect($result);
     }
 
     /**
@@ -342,7 +342,11 @@ class Collection extends ArrayObject implements ArrayAccess, Stringable
     public function __call(string $method, array $arguments)
     {
         if (is_callable($method) && str_starts_with($method, 'array_')) {
-            return collect($method($this->getArrayCopy(), ...$arguments));
+            if (is_array($response = $method($this->toArray(), ...$arguments))) {
+                return collect($response);
+            }
+
+            return $response;
         }
 
         throw new \BadMethodCallException($this::class . '->' . $method);
