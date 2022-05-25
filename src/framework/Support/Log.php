@@ -31,10 +31,10 @@ class Log
 
     private static function getLogFile(): string
     {
-        if (!file_exists(getcwd().'/../storage/logs')) {
-            mkdir(getcwd().'/../storage/logs', 0777, true);
+        if (!file_exists($storagePath = app()->basePath('storage/logs'))) {
+            mkdir($storagePath, 0777, true);
         }
 
-        return getcwd().'/../storage/logs/skeletal.log';
+        return $storagePath.'/skeletal.log';
     }
 }

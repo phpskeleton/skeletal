@@ -21,6 +21,8 @@ class Reflector
 
     public function call(?object $instance = null, array $arguments = [])
     {
+        $arguments = collect($arguments)->toCollections()->getArrayCopy();
+
         if ($this->reflection instanceof ReflectionFunction) {
             return $this->reflection->invokeArgs(array_merge($this->parameters, $arguments));
         }
