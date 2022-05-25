@@ -54,6 +54,12 @@ class Collection extends ArrayObject implements ArrayAccess, Stringable
         return collect($this->getArrayCopy());
     }
 
+    public function avg(string $key)
+    {
+        $items = $this->pluck($key)->filter()->flatten();
+        return array_sum($items)/$items->count();
+    }
+
     /**
      * Loop through each item in the collection
      */
@@ -140,9 +146,16 @@ class Collection extends ArrayObject implements ArrayAccess, Stringable
             $options = $options[0];
         }
 
-        return $this->array_filter(function ($key) use($options) {
-            return in_array($key, $options);
-        }, ARRAY_FILTER_USE_KEY);
+        $items = collect();
+        foreach ($options as $index => $search) {
+            $args = explode('.', $search);
+            if ($value = $this->get($search)) {
+                $key = array_pop($args);
+                $items[$key] = $value;
+            }
+        }
+
+        return $items;
     }
 
     /**
@@ -167,7 +180,7 @@ class Collection extends ArrayObject implements ArrayAccess, Stringable
         $plucked = collect($entries)->filter()->values();
 
         if (count($options) <= 1) {
-            $plucked = $plucked->flatten();
+            $plucked = $plucked->flatten(1);
         }
 
         return $plucked;
