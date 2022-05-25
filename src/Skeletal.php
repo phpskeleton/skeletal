@@ -1,23 +1,25 @@
 <?php
 
 use Skeletal\Contracts\Http\HandleRequests;
+
+use Skeletal\Http\Kernel;
 use Skeletal\Http\Request;
 
-
+use Skeletal\Support\Reflector;
 use Skeletal\Support\Resolver;
-use Skeletal\Support\Response;
+use Skeletal\Http\Response;
 
 class Skeletal implements HandleRequests
 {
     protected static $instance;
 
+    protected static $basePath;
+
     protected $container = [];
 
     public function __construct()
     {
-        static::bootstrap();
-
-        static::$instance = $this;
+        static::bootstrap(static::$instance = $this);
     }
 
     public function getCurrentRequest()
@@ -31,59 +33,54 @@ class Skeletal implements HandleRequests
          * @uses Skeletal\Http\Request
          *
          * @uses Skeletal\Support\Resolver
-         * @uses Skeletal\Support\Response
+         * @uses Skeletal\Http\Response
          */
 
         $this->request = $this->resolve('request')->createFromGlobals(
-            $_GET, $_POST, $_COOKIE, $_FILES, $_SERVER
+            $_REQUEST, $_GET, $_POST, $_COOKIE, $_FILES, $_SERVER
         );
 
-        $callback = $callback->bindTo($this);
-
-        $reflectionCallback = new ReflectionFunction($callback);
-        $callbackParams = [];
-        foreach ($reflectionCallback->getParameters() as $index => $param) {
-
-            // if (class_exists($abstract = $param->getType())) {
-            //     $dependency = $this->resolve($abstract);
-            // }
-            if (! $abstract = $param->getType()?->getName()) {
-                $abstract = $param->getName();
-            }
-
-            $callbackParams[] = $this->resolve((string) $abstract);
-        }
-
-        Response::send(
-            $reflectionCallback->invokeArgs($callbackParams)
-        );
+        Response::send(bind($callback)->call());
     }
 
+    /**
+     * @todo refactor resolve() to take a $name instead of $abstract (class name)
+     */
     public function resolve(string $abstract)
     {
-        // if (empty($this->container[$abstract])) {
-        //     throw new \Exception("\"{$abstract}\" not defined on the Skeletal instance");
-        // }
+        if (is_a($this, $abstract)) {
+            return $this;
+        }
+
+        if ($needle = array_search($abstract, $this->definitions())) {
+            $abstract = $needle;
+        }
 
         return $this->container[$abstract] ?? $this->make($abstract);
-             // : throw new ErrorException("\"{$abstract}\" couldn't be resolved within Skeletal instance");
     }
 
+    /**
+     * @todo refactor make() to take an alias name for the $abstract
+     * - set $this->container[$name] instead of $abstract
+     */
     public function make(string $abstract, array $arguments = [])
     {
+        if (array_key_exists($abstract, $class = $this->definitions())) {
+            return $this->container[$abstract] = new Resolver($class[$abstract]);
+        }
+
         if (class_exists($abstract)) {
             return $this->container[$abstract] = new $abstract(...$arguments);
         }
 
-        return array_key_exists($abstract, $class = $this->definitions())
-            ? $this->$abstract = new Resolver($class[$abstract])
-            : null; //throw new ErrorException("\"{$abstract}\" not defined on the Skeletal instance");
+        return null;
     }
 
-    public function definitions()
+    protected function definitions()
     {
         return [
-            'request' => \Skeletal\Http\Request::class
+            'request' => \Skeletal\Http\Request::class,
+            'response' => \Skeletal\Http\Response::class
         ];
     }
 
@@ -92,10 +89,17 @@ class Skeletal implements HandleRequests
         return static::$instance ?: new static;
     }
 
-    protected static function bootstrap(): void
+    protected static function bootstrap($instance): void
     {
         set_error_handler([Skeletal\Exceptions\Handler::class, 'reportError']);
         set_exception_handler([Skeletal\Exceptions\Handler::class, 'report']);
+
+        static::$basePath = $_ENV['APP_BASE_PATH'] ?? dirname(getcwd());
+    }
+
+    public static function basePath(string $path = '')
+    {
+        return static::$basePath.(!empty($path) ? DIRECTORY_SEPARATOR.$path : '');
     }
 
     public function __get($name): mixed

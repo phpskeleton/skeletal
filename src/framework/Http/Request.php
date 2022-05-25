@@ -6,18 +6,37 @@ use Stringable;
 
 class Request implements Stringable
 {
-    public function __construct($globalGET, $globalPOST, $globalCOOKIE, $globalFILES, $globalSERVER)
+
+    protected $uuid;
+
+    private $content = [];
+
+    private $globals = [];
+
+    public function __construct(...$globals)
     {
-        debug($globalGET);
-        debug($globalPOST);
-        debug($globalCOOKIE);
-        debug($globalFILES);
-        debug($globalSERVER);
+        $this->uuid = uniqid();
+
+        $inputFile = file_get_contents('php://input');
+        $body = json_decode($inputFile, true) ?? [];
+
+        $this->content = collect($body);
+        $this->globals = collect()->merge(...$globals);
     }
 
-    public static function getInfo()
+    public function getInfo()
     {
-        return 'hello';
+        return $this->uuid;
+    }
+
+    public function method()
+    {
+        return $this->globals->get('REQUEST_METHOD');
+    }
+
+    public function path()
+    {
+        return parse_url($this->globals->get('REQUEST_URI'), PHP_URL_PATH);;
     }
 
     public function test()
@@ -30,6 +49,21 @@ class Request implements Stringable
         return new static(
             ...$globals
         );
+    }
+
+    public function __call(string $method, array $arguments)
+    {
+        return $this->content->$method(...$arguments);
+    }
+
+    public function __get(string $key)
+    {
+        return $this->content->get($key);
+    }
+
+    public function __set(string $key, mixed $value)
+    {
+        return $this->content->set($key, $value);
     }
 
     public function __toString(): string

@@ -2,10 +2,21 @@
 
 namespace Skeletal\Support;
 
+/**
+ * Skeletal\Support\Log
+ *
+ * Log output into a file
+ *
+ * @author Ben Hirst
+ */
 class Log
 {
-    public static function debug(string|Stringable|array|null $log): void
+    public static function debug(string|Stringable|Collection|array|null $log): void
     {
+        if ($log instanceof Collection) {
+            $log = $log->getArrayCopy();
+        }
+
         if (is_array($log)) {
             $log = json_encode($log);
         }
@@ -16,11 +27,14 @@ class Log
     public static function echo(string $log): void
     {
         echo $log.PHP_EOL;
-        debug('echo done');
     }
 
     private static function getLogFile(): string
     {
-        return getcwd().'/../storage/logs/skeletal.log';
+        if (!file_exists($storagePath = app()->basePath('storage/logs'))) {
+            mkdir($storagePath, 0777, true);
+        }
+
+        return $storagePath.'/skeletal.log';
     }
 }

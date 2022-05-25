@@ -4,7 +4,7 @@
     "license": "MIT",
     "autoload": {
         "files": [
-            "src/framework/Support/helpers.php"
+            "src/framework/Helpers/helpers.php"
         ],
         "psr-4": {
             "": "src/",

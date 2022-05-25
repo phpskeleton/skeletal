@@ -1,3 +1,7 @@
+/docs
 /vendor
 composer.lock
 .DS_Store
+oldarraygen.php
+resolved-comments.php
+.phpdoc
